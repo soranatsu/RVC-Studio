@@ -65,7 +65,7 @@ def check_payload(root):
                  "assets/hubert_base/pytorch_model.bin", "assets/rmvpe/rmvpe.pt",
                  "assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.ckpt",
                  "assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.yaml",
-                 "smart_cover.py", "studio_backend.py", "studio_engine.py", "live_engine.py",
+                 "smart_cover.py", "studio_backend.py", "studio_engine.py", "live_engine.py", "video_export.py",
                  "tools/media/ffmpeg.exe", "tools/media/ffprobe.exe", "tools/media/manifest.json"):
         assert (root / name).is_file() and (root / name).stat().st_size, "Required inference asset: " + name
     manifest = json.loads((root / "release_manifest.json").read_text(encoding="utf-8"))
@@ -81,6 +81,7 @@ def check_payload(root):
                 print("Verified files: " + str(count), flush=True)
     config = json.loads((root / "configs/config.defaults.json").read_text(encoding="utf-8"))
     assert config["pitch"] == 12 and config["sg_wasapi_exclusive"] is False
+    assert config["export_video"] is True and config["match_source_loudness"] is True
     assert not any(key in config for key in ("sg_input_device", "sg_output_device", "sg_monitor_device"))
     assert "FreeBuds" not in json.dumps(config)
     assert not config.get("file_output_dir"), "Do not ship this machine's export path"

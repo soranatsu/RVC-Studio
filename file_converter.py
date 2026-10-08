@@ -243,6 +243,11 @@ def convert_file(job, workdir, report=lambda message, progress=None: None):
     counter = 0
     while True:
         target = destination / (stem + (f"_{counter}" if counter else "") + ".wav")
+        if result_dir is not None:
+            if not target.exists():
+                break
+            counter += 1
+            continue
         try:
             # The job directory is inside the output folder; Windows rename never overwrites.
             if os.name == "nt":
@@ -253,26 +258,40 @@ def convert_file(job, workdir, report=lambda message, progress=None: None):
             break
         except FileExistsError:
             counter += 1
+    publish_files = [(pending, target)] if result_dir is not None else []
+    video_info = None
+    if result_dir is not None and job.get("export_video", True):
+        from video_export import has_video, export_replaced_audio
+        if has_video(source, job):
+            emit("正在合成翻唱视频并检查音轨…", 96)
+            video_info = export_replaced_audio(source, pending, workdir / "converted-video.mp4", job)
+            staged_video = Path(video_info["path"])
+            video_target = target.with_suffix(staged_video.suffix)
+            publish_files.append((staged_video, video_target))
+            video_info.update(path=str(video_target), audio=str(target))
     elapsed = round(time.perf_counter() - started, 4)
     if diagnostics is not None:
         diagnostics.setdefault("conversion_seconds", elapsed)
-    report_path = None
+    result = {"output": str(target), "samplerate": samplerate,
+              "seconds": round(len(samples) / samplerate, 3),
+              "diagnostics": diagnostics or {},
+              "result_dir": str(result_dir) if result_dir else str(workdir),
+              "report": ""}
+    if video_info:
+        result.update(video=video_info["path"], video_export=video_info)
     if result_dir is not None:
         report_path = result_dir / "报告" / (target.stem + ".report.json")
-        report_pending = report_path.with_name(report_path.name + ".pending")
+        result["report"] = str(report_path)
+        report_pending = workdir / "converted-report.json"
         report_pending.write_text(json.dumps({
             "operation": "convert", "source": str(source), "model": str(model),
-            "output": str(target), "samplerate": samplerate,
-            "seconds": round(len(samples) / samplerate, 3),
-            "diagnostics": diagnostics or {}, "conversion_seconds": elapsed,
+            **result, "conversion_seconds": elapsed,
         }, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
-        report_pending.replace(report_path)
+        publish_files.append((report_pending, report_path))
+        from smart_cover import _publish_bundle
+        _publish_bundle(publish_files, job)
     emit("转换完成", 100)
-    return {"output": str(target), "samplerate": samplerate,
-            "seconds": round(len(samples) / samplerate, 3),
-            "diagnostics": diagnostics or {},
-            "result_dir": str(result_dir) if result_dir else str(workdir),
-            "report": str(report_path) if report_path else ""}
+    return result
 
 
 def run_job(job_path):

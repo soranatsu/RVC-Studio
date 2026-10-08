@@ -278,6 +278,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                 "extra_time": 2.5, "f0method": "rmvpe",
                 "monitor_enabled": None,
                 "sg_monitor_device": None,
+                "export_video": True,
             }
             for path in (Path(now_dir) / "configs/config.defaults.json", realtime_config_path):
                 try:
@@ -435,7 +436,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                 [sg.Input("", key="file_source", size=(37, 1), expand_x=True)],
                 [sg.Button("选择音频／视频…", key="choose_media", size=(19, 1))],
                 [sg.Text("使用当前模型、变调、检索比例和包络。\n"
-                         "视频提取音轨；导出 WAV 音频。\n"
+                         "视频默认保留原画面并导出翻唱视频；音频导出 WAV。\n"
                          "含伴奏的歌曲可先使用人声分离。", size=(39, 3),
                          text_color=muted, font=("Microsoft YaHei UI", 9), background_color=surface)],
             ])
@@ -558,6 +559,9 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                           size=(37, 1), expand_x=True)],
                 [sg.Button("选择文件夹…", key="choose_output_dir", size=(16, 1)),
                  sg.Button("打开结果文件夹", key="open_file_output", size=(17, 1), disabled=True)],
+                [sg.Checkbox("同时导出翻唱视频（保留原画面）", key="export_video",
+                             default=bool(data.get("export_video", True)), background_color=surface),
+                 sg.Text("仅视频输入生效", text_color=muted, background_color=surface)],
                 [sg.ProgressBar(100, key="file_progress", size=(30, 6), expand_x=True),
                  sg.Text("0%", key="file_percent", size=(5, 1), text_color=accent,
                          background_color=surface, justification="right")],
@@ -675,7 +679,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                         'cover_mix_lufs', 'cover_vocal_lufs', 'cover_deecho', 'cover_deess', 'cover_compress',
                         'cover_song', 'cover_vocal', 'cover_refine', 'cover_fast', 'cover_auto_parameters',
                         'cover_subtitles', 'cover_subtitle_language', 'subtitle_language', 'subtitle_offset',
-                        'match_source_loudness'):
+                        'match_source_loudness', 'export_video'):
                 if key in data:
                     value = data[key]
                     if key in ('cover_subtitle_language', 'subtitle_language'):
@@ -831,6 +835,9 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
             output_dir.mkdir(parents=True, exist_ok=True)
             self.file_job_dir = tempfile.TemporaryDirectory(dir=output_dir, prefix=".rvc-job-")
             job_path = Path(self.file_job_dir.name) / "job.json"
+            # Candidate/analysis jobs never render video; the backend also
+            # ignores this flag when the source has no video stream.
+            job["export_video"] = bool(values.get("export_video", True)) and operation in ("convert", "smart_cover", "link_cover")
             job["output_dir"] = str(output_dir)
             job["cancel_file"] = str(Path(self.file_job_dir.name) / 'cancel.flag')
             if operation in ("cover_analyze", "smart_cover"):
@@ -893,7 +900,8 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                     "cover_smooth", "cover_mix_lufs", "cover_vocal_lufs", "cover_deecho",
                     "cover_deess", "cover_compress", "cover_analyze", "cover_auto_parameters",
                     "cover_subtitles", "cover_subtitle_language", "match_source_loudness", "choose_bili23", "subtitle_source", "choose_subtitle",
-                    "subtitle_language", "subtitle_offset", "file_output_dir", "choose_output_dir")
+                    "subtitle_language", "subtitle_offset", "file_output_dir", "choose_output_dir",
+                    "export_video")
             if busy:
                 # Idempotent: a second call while the job is running must not
                 # replace the user's original states with ``disabled``.
@@ -1154,16 +1162,18 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                         actual = combo_values(language_key)
                         assert expected_languages.issubset(set(actual)), f"{language_key} values={actual!r}"
                     assert bool(self.window["match_source_loudness"].get()) is True, "match_source_loudness is not checked"
+                    assert bool(self.window["export_video"].get()) is True, "export_video is not checked"
                     assert str(self.window["cover_mix_lufs"].Widget.cget("state")) in ("disabled", "disable"), "mix LUFS is enabled"
                     assert str(self.window["cover_vocal_lufs"].Widget.cget("state")) in ("disabled", "disable"), "vocal LUFS is enabled"
                     assert Path(self.window["file_output_dir"].get()).resolve() == (Path(now_dir).parent / "projects").resolve(), f"output={self.window['file_output_dir'].get()!r}"
                     self.set_file_inputs_busy(True)
                     keys = ('voice_select', 'cover_source', 'cover_pitch', 'cover_dynamic', 'cover_analyze',
-                            'match_source_loudness')
+                            'match_source_loudness', 'export_video')
                     assert all(str(self.window[key].Widget.cget('state')) == 'disabled' for key in keys)
                     self.set_file_inputs_busy(False)
                     assert all(str(self.window[key].Widget.cget('state')) != 'disabled' for key in keys)
                     assert bool(self.window["match_source_loudness"].get()) is True
+                    assert bool(self.window["export_video"].get()) is True
                     assert str(self.window["cover_mix_lufs"].Widget.cget("state")) in ("disabled", "disable")
                     assert str(self.window["cover_vocal_lufs"].Widget.cget("state")) in ("disabled", "disable")
                     assert '峰值保护' in self.quality_status_text({'limiter_gain': 0.0})
@@ -1180,6 +1190,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                     assert '淡出' in range_notice and '继续' in range_notice
                     self._ui_checks['language_controls'] = True
                     self._ui_checks['match_source_loudness_default'] = True
+                    self._ui_checks['export_video_default'] = True
                     self._ui_checks['snapshot_controls_roundtrip'] = True
                 except Exception as exc:
                     self._ui_checks['snapshot_controls_error'] = repr(exc)
@@ -1189,6 +1200,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                         'cover_languages': repr(getattr(self.window['cover_subtitle_language'], 'Values', None)),
                         'subtitle_languages': repr(getattr(self.window['subtitle_language'], 'Values', None)),
                         'match_source_loudness': repr(self.window['match_source_loudness'].get()),
+                        'export_video': repr(self.window['export_video'].get()),
                         'mix_lufs_state': repr(self.window['cover_mix_lufs'].Widget.cget('state')),
                         'vocal_lufs_state': repr(self.window['cover_vocal_lufs'].Widget.cget('state')),
                         'output_path': repr(self.window['file_output_dir'].get()),
@@ -1395,7 +1407,7 @@ if __name__ == "__main__" and not os.environ.get("RVC_BACKEND_CHILD"):
                         'cover_mix_lufs', 'cover_vocal_lufs', 'cover_deecho', 'cover_deess', 'cover_compress',
                         'cover_song', 'cover_vocal', 'cover_refine', 'cover_fast', 'cover_auto_parameters',
                         'cover_subtitles', 'cover_subtitle_language', 'subtitle_language', 'subtitle_offset',
-                        'match_source_loudness'):
+                        'match_source_loudness', 'export_video'):
                 settings[key] = values[key] if key in values else (
                     self.window[key].Widget.get() if isinstance(self.window[key], sg.Slider)
                     else self.window[key].get())

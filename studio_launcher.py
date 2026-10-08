@@ -24,7 +24,7 @@ def diagnose():
     apis = sd.query_hostapis()
     devices = list(sd.query_devices())
     api = next((api for api in apis if api["name"] == "Windows WASAPI"), apis[0])
-    report = {"version": "1.2.6", "python": sys.version.split()[0],
+    report = {"version": "1.2.7", "python": sys.version.split()[0],
               "torch": torch.__version__, "cuda_runtime": torch.version.cuda,
               "device": config.device, "half_precision": config.is_half,
               "gpu": torch.cuda.get_device_name() if gpu_test else None,

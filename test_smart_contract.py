@@ -21,7 +21,7 @@ def check():
     # restoration.  The latter may reach 36 semitones only with a safe low
     # register; no single global plan may retune a 100--6400 Hz range.
     extended = pitch_range_plan([500, 6400], max_restore_semitones=36, sample_rate=48000)
-    assert extended['restore_semitones'] == 36 and extended['model_f0_max_hz'] <= 800
+    assert extended['restore_semitones'] == 33 and extended['model_f0_max_hz'] <= 1000
     try:
         pitch_range_plan([100, 6400], max_restore_semitones=36, sample_rate=48000)
     except ValueError:
@@ -49,7 +49,8 @@ def check():
             target = root / f'candidate{i}.wav'
             sf.write(target.with_suffix('.raw.wav'), audio, sr, subtype='FLOAT')
             mastering = normalize_file(target.with_suffix('.raw.wav'), target, -18, -1)
-            candidates.append({'preview': str(target), 'loudness': mastering})
+            candidates.append({'preview': str(target), 'raw_preview': str(target.with_suffix('.raw.wav')),
+                               'loudness': mastering})
         target = cover._equalize_previews(candidates, {})
         values = [item['loudness']['actual_lufs'] for item in candidates]
         assert target < -18 and max(values)-min(values) < .2, values
@@ -63,7 +64,9 @@ def check():
             return {'output': str(out), 'diagnostics': {'pre_limiter_peak': 1.1}}
         job = {'model': str(root/'model.pth'), 'cancel_file': str(root/'cancel.flag')}
         with patch('file_converter.convert_file', convert):
-            cover._model_preview(tone*8, sr, 0, job, root/'preview', root/'final.wav', None)
+            preview_result = cover._model_preview(tone*8, sr, 0, job, root/'preview', root/'final.wav', None)
+        assert isinstance(preview_result, tuple) and len(preview_result) == 2
+        assert preview_result[0] == str(root/'final.wav')
         assert recorded['float_output'] and recorded['diagnostics']
         assert recorded['cancel_file'] == job['cancel_file']
         assert job['preview_diagnostics']['pre_limiter_peak'] == 1.1

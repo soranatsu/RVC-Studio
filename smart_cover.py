@@ -1083,6 +1083,18 @@ def smart_cover(job, workdir, report):
             video_output = result_group / "素材" / source.name
             publish_files.append((source, video_output))
             result["source_video"] = str(video_output)
+    if job.get("export_video", True):
+        from video_export import has_video, export_replaced_audio
+        if has_video(source, job):
+            _report(report, "合成翻唱视频并检查音轨", 99)
+            video_started = time.perf_counter()
+            video_info = export_replaced_audio(source, staged_output, workdir / "cover-video.mp4", job)
+            staged_video = Path(video_info["path"])
+            video_output = output_path.with_suffix(staged_video.suffix)
+            publish_files.append((staged_video, video_output))
+            video_info.update(path=str(video_output), audio=str(output_path))
+            result.update(video=str(video_output), video_export=video_info)
+            result["processing"]["timing_seconds"]["video_export"] = round(time.perf_counter() - video_started, 4)
     result["processing"]["timing_seconds"]["total"] = round(time.perf_counter() - total_started, 4)
     _write_report(staged_report, {"job": safe_job, "analysis": public_analysis, "result": result})
     publish_files.append((staged_report, Path(result["report"])))

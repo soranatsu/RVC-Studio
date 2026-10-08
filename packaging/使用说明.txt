@@ -1,8 +1,8 @@
-RVC 声音工作台 1.2.5
+RVC 声音工作台 1.2.7
 Windows 10 / 11 64 位 · NVIDIA RTX 4060 / 4060 Laptop
 
 安装
-把整个 ZIP 解压到本地文件夹，双击 RVC-Studio-1.2.5-Setup.exe。
+把整个 ZIP 解压到本地文件夹，双击 RVC-Studio-1.2.7-Setup.exe。
 同目录的 .bin 文件是安装数据，必须全部保留；不要在压缩包里直接运行安装程序。
 安装包已包含 Python、PyTorch CUDA 11.8、声音模型、索引和音频／视频转换所需组件，无需再装 Python 或 CUDA Toolkit。
 建议安装到默认目录或自己有读写权限的目录，目标磁盘至少留出 18 GB。解压安装包还需额外空间。

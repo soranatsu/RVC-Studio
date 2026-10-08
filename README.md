@@ -1,6 +1,8 @@
 # 声音工作台（RVC Studio）
 
-基于 RVC 的 Windows 桌面声音工作台，当前源码版本为 **1.2.6**。它把实时变声、RVC 文件转换、智能翻唱、音频分离、混音、频谱查看和字幕导出放在同一个界面中。
+基于 RVC 的 Windows 桌面声音工作台，当前源码版本为 **1.2.7**。它把实时变声、RVC 文件转换、智能翻唱、音频分离、混音、频谱查看和字幕导出放在同一个界面中。公开源码：[soranatsu/RVC-Studio](https://github.com/soranatsu/RVC-Studio)。
+
+视频输入默认同时输出 WAV 与翻唱视频，保留原画面并完全替换原音轨，不叠加原唱。视频放在单次结果的“主成品”中，文件名包含模型名称；画面直接复制，通常输出 MP4，容器不兼容的画面编码输出 MKV。音频短于画面时补静音，长于画面时裁齐；音轨、帧数、时长和有限值通过检查后才发布成果。可取消勾选“同时导出翻唱视频（保留原画面）”仅导出音频。
 
 这份仓库是源码和运行说明，不是包含全部模型与运行时的完整安装包。角色音色模型、用户歌曲、索引文件、Python/CUDA 运行时和本机配置不会随源码发布。
 
@@ -24,8 +26,8 @@
 克隆时取回固定版本的 Rubber Band 上游源码：
 
 ```powershell
-git clone --recurse-submodules https://github.com/soranatsu/rvc-studio.git
-cd rvc-studio
+git clone --recurse-submodules https://github.com/soranatsu/RVC-Studio.git
+cd RVC-Studio
 ```
 
 若下载的是 GitHub 自动生成的 ZIP，Rubber Band 子模块不会包含在 ZIP 中；请按 [`tools/pitch_shift/BUILD.md`](tools/pitch_shift/BUILD.md) 准备对应源 commit 后编译桥接组件。
@@ -105,7 +107,7 @@ Copy-Item tools\media\ffmpeg.exe,tools\media\ffprobe.exe . -Force
 
 默认输出路径为程序目录旁的 `projects/`。如果模型、索引或输出设备不可用，先查看界面中的任务阶段和报告；不要删除已有结果目录来“修复”任务。日志位于程序目录的 `logs/`。
 
-如果后台启动时报 `NoneType has no attribute write`，请确认使用的是包含 1.2.6 修复的源码或发布包；该问题来自无控制台启动时的标准输出流，而不是模型本身。旧的 1.2.5 完整包仅作为回退版本保存，不能与当前源码版本混称。
+如果后台启动时报 `NoneType has no attribute write`，请确认使用的是包含 1.2.6 及后续修复的源码或发布包；该问题来自无控制台启动时的标准输出流，而不是模型本身。当前完整包为 1.2.7，旧包不能与当前源码版本混称。
 
 ## 来源、版权和许可证
 

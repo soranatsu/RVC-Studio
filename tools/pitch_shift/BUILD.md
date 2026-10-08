@@ -32,8 +32,7 @@ KissFFT/built-in-resampler configuration. The bridge also requires
 license is in `rubberband-src/COPYING`; bundled KissFFT and Speex license
 texts are in `src/ext/*/COPYING`. `libwinpthread-1.dll` is the MinGW
 winpthreads runtime and must retain its corresponding MinGW runtime license
-when redistributed. Run the strict CPU
-regression from the project directory with:
+when redistributed.
 
 The current local winpthreads DLL is 52,224 bytes with SHA-256
 `5bbef249a0d00e2d32c699d0bbe89f714ebeb872b3990a5cbeccb1d89f63e5e8`.
@@ -41,6 +40,8 @@ The original DLL build record was not retained; the checksum identifies the
 tested local file, rather than proving its upstream build provenance. Native
 binaries are excluded from the source repository; build or supply compatible
 ones under their original licenses. See `docs/THIRD_PARTY.md`.
+
+Run the strict CPU regression from the project directory with:
 
 ```text
 runtime\python.exe tools\test_live_pitch_shift.py

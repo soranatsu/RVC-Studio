@@ -71,7 +71,7 @@
 !/assets/asr/whisper-large-v3-turbo/MANIFEST.json
 !/assets/asr/whisper-large-v3-turbo/LICENSE.txt
 !/assets/pymss_weights/
-!/assets/pymss_weights/*.yaml
+!/assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.yaml
 
 # Final guards also protect against accidental add-all commands.
 **/__pycache__/

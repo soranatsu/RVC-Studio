@@ -10,7 +10,7 @@ import subprocess
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "1.2.6"
+VERSION = "1.2.7"
 RELEASE = ROOT.parent / "releases" / ("RVC-Studio-" + VERSION)
 STAGE = ROOT.parent / "releases/build" / VERSION / "app"
 IGNORE = {"__pycache__", ".git", ".gitignore", ".DS_Store", ".cache"}
@@ -70,7 +70,7 @@ def stage():
             copy_file(path, STAGE / "assets" / path.name)
     for name in ("realtime_gui.py", "file_converter.py", "studio_launcher.py", "studio_backend.py", "studio_engine.py",
                  "smart_cover.py", "live_engine.py", "audio_mixer.py", "audio_separator.py", "audio_spectrum.py",
-                 "link_cover.py", "video_downloader.py", "subtitle_transcriber.py", "ffmpeg.exe", "ffprobe.exe",
+                 "link_cover.py", "video_downloader.py", "video_export.py", "subtitle_transcriber.py", "ffmpeg.exe", "ffprobe.exe",
                  "LICENSE", "MIT协议暨相关引用库协议"):
         copy_file(ROOT / name, STAGE / name)
     for name in ("使用说明.txt", "发布说明.txt"):
@@ -85,6 +85,7 @@ def stage():
     defaults["pitch"] = 12
     defaults["cover_refine"] = True
     defaults["match_source_loudness"] = True
+    defaults["export_video"] = True
     defaults["cover_fast"] = False
     defaults["cover_deess"] = False
     defaults["cover_deecho"] = False
