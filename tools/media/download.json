@@ -1,0 +1,9 @@
+{
+  "tag": "latest",
+  "published": "2026-10-06T13:28:21Z",
+  "asset_id": 615598344,
+  "asset_name": "ffmpeg-n8.1-latest-win64-gpl-8.1.zip",
+  "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-gpl-8.1.zip",
+  "bytes": 193032743,
+  "digest": "sha256:ae302cb27f0f1eceab8441f7e9a0d8cab4daf5130aa4d024a76d0655a4aea97d"
+}

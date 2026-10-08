@@ -1,0 +1,8 @@
+Unmodified BtbN Windows x64 GPL static FFmpeg 8.1 build.
+Pinned release asset ID: 615598344; published 2026-10-06.
+Build recipes and dependency source revisions:
+https://github.com/BtbN/FFmpeg-Builds/tree/9acad4a
+FFmpeg source and tags: https://github.com/FFmpeg/FFmpeg
+Rubber Band source: https://github.com/breakfastquay/rubberband
+Exact versions, configure flags and SHA-256: manifest.json and *-build.txt.
+Original GPL license accompanies these unmodified executables.
