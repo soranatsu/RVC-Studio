@@ -11,7 +11,8 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "1.2.7"
-RELEASE = ROOT.parent / "releases" / ("RVC-Studio-" + VERSION)
+REPO = ROOT.parent
+RELEASE = REPO / "releases" / ("RVC-Studio-" + VERSION)
 STAGE = ROOT.parent / "releases/build" / VERSION / "app"
 IGNORE = {"__pycache__", ".git", ".gitignore", ".DS_Store", ".cache"}
 
@@ -70,9 +71,10 @@ def stage():
             copy_file(path, STAGE / "assets" / path.name)
     for name in ("realtime_gui.py", "file_converter.py", "studio_launcher.py", "studio_backend.py", "studio_engine.py",
                  "smart_cover.py", "live_engine.py", "audio_mixer.py", "audio_separator.py", "audio_spectrum.py",
-                 "link_cover.py", "video_downloader.py", "video_export.py", "subtitle_transcriber.py", "ffmpeg.exe", "ffprobe.exe",
-                 "LICENSE", "MIT协议暨相关引用库协议"):
+                 "link_cover.py", "video_downloader.py", "video_export.py", "subtitle_transcriber.py", "ffmpeg.exe", "ffprobe.exe"):
         copy_file(ROOT / name, STAGE / name)
+    for name in ("LICENSE", "MIT协议暨相关引用库协议"):
+        copy_file(REPO / name, STAGE / name)
     for name in ("使用说明.txt", "发布说明.txt"):
         copy_file(ROOT / "packaging" / name, STAGE / name)
     # 发布说明链接到这份来源与许可说明；把它放入安装包，避免安装后断链。
@@ -106,7 +108,7 @@ def stage():
         assert (STAGE / defaults["index_path"]).is_file(), "Default index must be bundled"
     (STAGE / "configs/config.defaults.json").write_text(
         json.dumps(defaults, ensure_ascii=False, indent=2), encoding="utf-8")
-    copy_tree(ROOT.parent / "VB-CABLE", STAGE / "prerequisites/VB-CABLE")
+    copy_tree(REPO / "VB-CABLE", STAGE / "prerequisites/VB-CABLE")
     copy_file(ROOT / "packaging/vendor/VC_redist.x64.exe", STAGE / "prerequisites/VC_redist.x64.exe")
     notice = STAGE / "licenses/THIRD-PARTY-NOTICES.txt"
     notice.parent.mkdir(exist_ok=True)

@@ -10,7 +10,7 @@
 
 约 2 MB 的 `RVC-Studio-1.2.7-Program.zip` 也继续提供，包含程序与源码，供已有对应运行环境和模型的用户使用。GitHub 自动生成的 `Source code` 压缩包仅包含源码。
 
-![声音工作台界面](assets/screenshots/studio.png)
+![声音工作台界面](app/assets/screenshots/studio.png)
 
 ## 功能
 
@@ -34,12 +34,13 @@ git clone --recurse-submodules https://github.com/soranatsu/RVC-Studio.git
 cd RVC-Studio
 ```
 
-若下载的是 GitHub 自动生成的 ZIP，Rubber Band 子模块不会包含在 ZIP 中；请按 [`tools/pitch_shift/BUILD.md`](tools/pitch_shift/BUILD.md) 准备对应源 commit 后编译桥接组件。
+若下载的是 GitHub 自动生成的 ZIP，Rubber Band 子模块不会包含在 ZIP 中；请按 [`app/tools/pitch_shift/BUILD.md`](app/tools/pitch_shift/BUILD.md) 准备对应源 commit 后编译桥接组件。
 
 ```powershell
 py -3.12 -m venv .venv
 .venv\Scripts\activate
 python -m pip install --upgrade pip setuptools wheel
+cd app
 ```
 
 | 硬件 | 安装方式 |
@@ -61,7 +62,7 @@ python -m pip install -r requirments_cu118_py312.txt
 
 ## 启动
 
-源码启动入口是：
+源码启动入口是（在 `app/` 目录中）：
 
 ```powershell
 python studio_launcher.py
@@ -77,33 +78,33 @@ runtime\pythonw.exe -I studio_launcher.py
 
 ## 模型与外部工具
 
-源码仓库不包含大体积模型。按 `docs/SOURCES.md` 的来源和许可证说明准备以下资源，并放到代码实际读取的目录：
+源码仓库不包含大体积模型。按 `app/docs/SOURCES.md` 的来源和许可证说明准备以下资源，并放到代码实际读取的目录：
 
 ```text
-assets/hubert_base/hubert_base.pt
-assets/rmvpe/rmvpe.pt
-assets/uvr5_weights/HP2_all_vocals.pth       快速分离：全部人声
-assets/uvr5_weights/HP5_only_main_vocal.pth 快速分离：主要人声
-assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.ckpt
-assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.yaml
-assets/weights/                                用户自己的 .pth 角色模型
-assets/indices/                                用户自己的 .index 索引
+app/assets/hubert_base/hubert_base.pt
+app/assets/rmvpe/rmvpe.pt
+app/assets/uvr5_weights/HP2_all_vocals.pth       快速分离：全部人声
+app/assets/uvr5_weights/HP5_only_main_vocal.pth 快速分离：主要人声
+app/assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.ckpt
+app/assets/pymss_weights/model_bs_roformer_ep_317_sdr_12.9755.yaml
+app/assets/weights/                                用户自己的 .pth 角色模型
+app/assets/indices/                                用户自己的 .index 索引
 ```
 
-精修翻唱使用上面列出的 BS-Roformer 权重和同名 YAML；快速模式使用 `assets/uvr5_weights/` 下的 HP 模型。字幕识别模型目录固定为 `assets/asr/whisper-large-v3-turbo/`。例如，用 `huggingface_hub` 下载固定 revision（该库随 Transformers 环境安装，不需要新增安装脚本）：
+精修翻唱使用上面列出的 BS-Roformer 权重和同名 YAML；快速模式使用 `app/assets/uvr5_weights/` 下的 HP 模型。字幕识别模型目录固定为 `app/assets/asr/whisper-large-v3-turbo/`。例如，用 `huggingface_hub` 下载固定 revision（该库随 Transformers 环境安装，不需要新增安装脚本）：
 
 ```powershell
-python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='openai/whisper-large-v3-turbo', revision='41f01f3fe87f28c78e2fbf8b568835947dd65ed9', local_dir='assets/asr/whisper-large-v3-turbo')"
+python -c "from huggingface_hub import snapshot_download; snapshot_download(repo_id='openai/whisper-large-v3-turbo', revision='41f01f3fe87f28c78e2fbf8b568835947dd65ed9', local_dir='app/assets/asr/whisper-large-v3-turbo')"
 ```
 
-音频处理使用 FFmpeg 的 GPL 构建。不要直接依赖会变化的 `latest` 文件名：按照 `tools/media/download.json` 中的 URL 下载 ZIP 到 `TEMP/ffmpeg-8.1-gpl.zip`，核对其中记录的固定 SHA-256 后运行：
+音频处理使用 FFmpeg 的 GPL 构建。不要直接依赖会变化的 `latest` 文件名：按照 `app/tools/media/download.json` 中的 URL 下载 ZIP 到 `TEMP/ffmpeg-8.1-gpl.zip`，核对其中记录的固定 SHA-256 后运行：
 
 ```powershell
-runtime\python.exe packaging\prepare_media.py
-Copy-Item tools\media\ffmpeg.exe,tools\media\ffprobe.exe . -Force
+runtime\python.exe app\packaging\prepare_media.py
+Copy-Item app\tools\media\ffmpeg.exe,app\tools\media\ffprobe.exe app\ -Force
 ```
 
-`prepare_media.py` 会拒绝 SHA-256 不匹配的压缩包，并记录二进制版本、校验值和滤镜检查结果；上游 `latest` 换包时，必须先更新并核对 manifest，不能把未核验的文件直接当作本项目构建。Rubber Band 桥接组件的固定源码、构建依赖、提交号和 MinGW 编译命令见 [`tools/pitch_shift/BUILD.md`](tools/pitch_shift/BUILD.md)。
+`prepare_media.py` 会拒绝 SHA-256 不匹配的压缩包，并记录二进制版本、校验值和滤镜检查结果；上游 `latest` 换包时，必须先更新并核对 manifest，不能把未核验的文件直接当作本项目构建。Rubber Band 桥接组件的固定源码、构建依赖、提交号和 MinGW 编译命令见 [`app/tools/pitch_shift/BUILD.md`](app/tools/pitch_shift/BUILD.md)。
 
 本机 RTX 4060 已验证 CUDA 11.8 两阶段安装和上述启动路径；CPU、AMD/Intel 以及 RTX 50 系配置文件沿用上游，当前没有在本机硬件上完成同等验证。
 
@@ -115,20 +116,20 @@ Copy-Item tools\media\ffmpeg.exe,tools\media\ffprobe.exe . -Force
 
 ## 来源、版权和许可证
 
-上游 RVC 的原始说明保留在 [`docs/README_UPSTREAM.md`](docs/README_UPSTREAM.md)。本项目的来源、组件许可证、模型边界和用户指定的角色模型来源见 [`docs/SOURCES.md`](docs/SOURCES.md)。
+上游 RVC 的原始说明保留在 [`app/docs/README_UPSTREAM.md`](app/docs/README_UPSTREAM.md)。本项目的来源、组件许可证、模型边界和用户指定的角色模型来源见 [`app/docs/SOURCES.md`](app/docs/SOURCES.md)。
 
 用户指定的角色模型来源为：[Bilibili BV1mqKq6PE49](https://www.bilibili.com/video/BV1mqKq6PE49/)。该链接作者和逐模型分发许可证尚未由本项目独立核实，因此仓库不上传角色模型，也不对角色形象、训练数据或用户音视频作权利声明。
 
 请同时阅读根目录 [`LICENSE`](LICENSE)、[`MIT协议暨相关引用库协议`](MIT协议暨相关引用库协议) 以及各 vendored 组件自己的 LICENSE/NOTICE。RVC 的 MIT 许可不会自动覆盖角色模型、FFmpeg、Rubber Band、Whisper 或其他第三方资产。
 
-内置分离源码的发行包依据、原生组件版本与许可记录见 [`docs/THIRD_PARTY.md`](docs/THIRD_PARTY.md)。
+内置分离源码的发行包依据、原生组件版本与许可记录见 [`app/docs/THIRD_PARTY.md`](app/docs/THIRD_PARTY.md)。
 
 ## 目录说明
 
-- `studio_launcher.py`：桌面启动入口。
-- `realtime_gui.py`：桌面界面和任务提交。
-- `studio_backend.py`、`studio_engine.py`：后台任务和设备/模型协调。
-- `smart_cover.py`：智能翻唱、分离、RVC、响度匹配和结果整理。
-- `subtitle_transcriber.py`：字幕识别与 SRT/TXT 导出。
-- `docs/SOURCES.md`：引用来源、版本和许可证边界。
-- `docs/README_UPSTREAM.md`：原 RVC 上游 README 的保留副本。
+- `app/studio_launcher.py`：桌面启动入口。
+- `app/realtime_gui.py`：桌面界面和任务提交。
+- `app/studio_backend.py`、`app/studio_engine.py`：后台任务和设备/模型协调。
+- `app/smart_cover.py`：智能翻唱、分离、RVC、响度匹配和结果整理。
+- `app/subtitle_transcriber.py`：字幕识别与 SRT/TXT 导出。
+- `app/docs/SOURCES.md`：引用来源、版本和许可证边界。
+- `app/docs/README_UPSTREAM.md`：原 RVC 上游 README 的保留副本。
