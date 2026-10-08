@@ -66,6 +66,7 @@
 !/app/packaging/**/*.iss
 !/app/packaging/**/*.isl
 !/app/packaging/**/*.txt
+!/app/packaging/**/*.json
 !/app/assets/
 !/app/assets/studio_icon.ico
 !/app/assets/studio_icon.png

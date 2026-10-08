@@ -44,7 +44,7 @@ VersionInfoDescription=RVC 声音工作台安装程序
 VersionInfoVersion={#AppVersion}.0
 
 [Languages]
-Name: "chinesesimp"; MessagesFile: "vendor\ChineseSimplified.isl"
+Name: "chinesesimp"; MessagesFile: "online\ChineseSimplified.isl"
 
 [LangOptions]
 DialogFontName=Microsoft YaHei UI

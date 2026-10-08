@@ -1,4 +1,4 @@
-# 声音工作台（RVC Studio）
+# RVC Studio · 声音工作台
 
 基于 RVC 的 Windows 桌面声音工作台，当前源码版本为 **1.2.7**。它把实时变声、RVC 文件转换、智能翻唱、音频分离、混音、频谱查看和字幕导出放在同一个界面中。公开源码：[soranatsu/RVC-Studio](https://github.com/soranatsu/RVC-Studio)。
 
@@ -6,7 +6,11 @@
 
 这份仓库是源码和运行说明，不是包含全部模型与运行时的完整安装包。角色音色模型、用户歌曲、索引文件、Python/CUDA 运行时和本机配置不会随源码发布。
 
-**完整安装包：[GitHub Releases 下载](https://github.com/soranatsu/RVC-Studio/releases/latest)。** 下载 `RVC-Studio-1.2.7-Setup.exe` 和全部 4 个 `Setup-*.bin`，放在同一文件夹中运行 `.exe`，无需合并或解压数据分卷。约 6.85 GB 的安装包包含运行环境和 15 个声音模型。
+**[下载在线安装器（约 2.2 MB）](https://github.com/soranatsu/RVC-Studio/releases/download/v1.2.7/RVC-Studio-1.2.7-Online-Setup.exe)** · [查看全部发布文件](https://github.com/soranatsu/RVC-Studio/releases/latest)
+
+运行在线安装器后，会自动下载约 **6.85 GB** 的运行环境和 **15 个声音模型**，校验、重组并启动完整安装。下载进度可查看、可取消，已完成文件会保留供重试使用。Release 中的数据分块由安装器自动处理。
+
+面向 Windows 10/11 x64，当前完整包已在 RTX 4060 电脑验证。缓存建议预留 10 GB，安装另需约 15 GB；缓存与程序装在同一盘时建议预留 25 GB。NVIDIA 显卡驱动由系统提供。
 
 约 2 MB 的 `RVC-Studio-1.2.7-Program.zip` 也继续提供，包含程序与源码，供已有对应运行环境和模型的用户使用。GitHub 自动生成的 `Source code` 压缩包仅包含源码。
 
@@ -126,10 +130,11 @@ Copy-Item app\tools\media\ffmpeg.exe,app\tools\media\ffprobe.exe app\ -Force
 
 ## 目录说明
 
-- `app/studio_launcher.py`：桌面启动入口。
-- `app/realtime_gui.py`：桌面界面和任务提交。
-- `app/studio_backend.py`、`app/studio_engine.py`：后台任务和设备/模型协调。
-- `app/smart_cover.py`：智能翻唱、分离、RVC、响度匹配和结果整理。
-- `app/subtitle_transcriber.py`：字幕识别与 SRT/TXT 导出。
-- `app/docs/SOURCES.md`：引用来源、版本和许可证边界。
-- `app/docs/README_UPSTREAM.md`：原 RVC 上游 README 的保留副本。
+| 位置 | 内容 |
+| --- | --- |
+| `app/` | 应用源码、测试和资源；`studio_launcher.py` 为源码启动入口 |
+| `app/packaging/` | 完整安装包与在线 Setup 的构建脚本 |
+| `app/docs/` | 使用依据、验证记录、上游说明和引用来源 |
+| `app/infer/`、`app/tools/` | RVC 推理与音频处理组件 |
+
+整理后的源码目录与安装包内部目录分别维护；当前安装包及桌面入口继续使用已经验证的布局。

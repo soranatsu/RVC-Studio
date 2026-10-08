@@ -1,0 +1,238 @@
+{
+  "format": "rvc-studio-release-chunks-v1",
+  "tag": "v1.2.7",
+  "repository": "soranatsu/RVC-Studio",
+  "chunk_bytes": 268435456,
+  "originals": [
+    {
+      "name": "RVC-Studio-1.2.7-Setup-1.bin",
+      "bytes": 1994793984,
+      "sha256": "de7aadb3406b1d34be1dac235eec5a3a7a057e2cdf4ba4473c7367ff8ff72ed6",
+      "chunked": true,
+      "chunks": [
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part01",
+          "part": 1,
+          "offset": 0,
+          "bytes": 268435456,
+          "sha256": "97c1083ec11eee66c879008a7283fd38ba6aca9d67832a3689a9d1660ad75cba"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part02",
+          "part": 2,
+          "offset": 268435456,
+          "bytes": 268435456,
+          "sha256": "dd1a771b89fbec550bf7d8383144afcc8a3be118f0a7d3ac8a94213966e11c9c"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part03",
+          "part": 3,
+          "offset": 536870912,
+          "bytes": 268435456,
+          "sha256": "f83102b4af2895cf941cb911da659bdb83da5f279caeb7bee7de3d5d4b62c2a6"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part04",
+          "part": 4,
+          "offset": 805306368,
+          "bytes": 268435456,
+          "sha256": "c4557a60fc3ad576756b4d196f92e38b371e7e79036c49ddb679b06edaafd735"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part05",
+          "part": 5,
+          "offset": 1073741824,
+          "bytes": 268435456,
+          "sha256": "931ea6b9832067e11d6df48d693a53e9878083c46e0c6b8ddac74397c0d99322"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part06",
+          "part": 6,
+          "offset": 1342177280,
+          "bytes": 268435456,
+          "sha256": "352fcf3c0ca9fbd0cb4bd0c7706e9b3a07e2d6cd21a7289a77de90577c801125"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part07",
+          "part": 7,
+          "offset": 1610612736,
+          "bytes": 268435456,
+          "sha256": "dee132ddbafcc007d43613d6134ec264e49850586b5cdbf031922edf75540b9c"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-1.bin.part08",
+          "part": 8,
+          "offset": 1879048192,
+          "bytes": 115745792,
+          "sha256": "7bed593c55c9d5055dedb3ed865ef06282256e97a351b43647e363a453235583"
+        }
+      ]
+    },
+    {
+      "name": "RVC-Studio-1.2.7-Setup-2.bin",
+      "bytes": 2000000000,
+      "sha256": "701fd40c89af80268405a0bd1a06a336658fb6b6def64bebba4a66c3d7c06f13",
+      "chunked": true,
+      "chunks": [
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part01",
+          "part": 1,
+          "offset": 0,
+          "bytes": 268435456,
+          "sha256": "1aa2561d23467275c2581abd5489790d4eb66da04d7fddadd993dd17902d9e1f"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part02",
+          "part": 2,
+          "offset": 268435456,
+          "bytes": 268435456,
+          "sha256": "52195c8a01caaa8dc28594e25e6dfa2d135c919adca7376fc0c4218f0d9afdd7"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part03",
+          "part": 3,
+          "offset": 536870912,
+          "bytes": 268435456,
+          "sha256": "23e5b9d90a88f2e3ee83ec51df929679cfdd36a0ac8f81726dfb1d3514499ef7"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part04",
+          "part": 4,
+          "offset": 805306368,
+          "bytes": 268435456,
+          "sha256": "61b87daee2c3fd45feae1b09c5830a05ee43dc65afee7b7f35442868c9f096aa"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part05",
+          "part": 5,
+          "offset": 1073741824,
+          "bytes": 268435456,
+          "sha256": "8e31167aebd7a6786e20ae05b65945321326c1c53e1327cf55b1c06800a86e33"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part06",
+          "part": 6,
+          "offset": 1342177280,
+          "bytes": 268435456,
+          "sha256": "da5069b192e3fcad714d49b61a8dd76ce707d059a56f3a2def388e1ad4418f22"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part07",
+          "part": 7,
+          "offset": 1610612736,
+          "bytes": 268435456,
+          "sha256": "2ee2cfa22493a209dce8375d461b2de45e28abf217377d05d4ba49a43406d565"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-2.bin.part08",
+          "part": 8,
+          "offset": 1879048192,
+          "bytes": 120951808,
+          "sha256": "fe365d82ca49914f90f5ce60b0a6bbaa25621440d71a5f6498c50335021508ce"
+        }
+      ]
+    },
+    {
+      "name": "RVC-Studio-1.2.7-Setup-3.bin",
+      "bytes": 2000000000,
+      "sha256": "bfd402869e37a5a6d499b50f302aaa3b50e57906ba28ad6642099486a76656bb",
+      "chunked": true,
+      "chunks": [
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part01",
+          "part": 1,
+          "offset": 0,
+          "bytes": 268435456,
+          "sha256": "dafb06d9e325a882d025a9783506f135a9b16e91532732e345c4359d809dd165"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part02",
+          "part": 2,
+          "offset": 268435456,
+          "bytes": 268435456,
+          "sha256": "48fc228fc009d1f251ee9ea3fa5996dd6f6142e3a5aa015c5518039f49621f6a"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part03",
+          "part": 3,
+          "offset": 536870912,
+          "bytes": 268435456,
+          "sha256": "214808f48782f334265bed41ad4ff281aadc1b740376c557303522ef4d71cb3d"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part04",
+          "part": 4,
+          "offset": 805306368,
+          "bytes": 268435456,
+          "sha256": "45879332c28c4024f2d2150375c6d60b66a51f6ec20108ee5390806c3386a54a"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part05",
+          "part": 5,
+          "offset": 1073741824,
+          "bytes": 268435456,
+          "sha256": "d67d6367cc36073de9cec41f116b95bf6fbe24409126fe2955c816c368123e87"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part06",
+          "part": 6,
+          "offset": 1342177280,
+          "bytes": 268435456,
+          "sha256": "23a04144189ab32ebbc3cd4a0e12bcf45774c5b021c87217f1d63d8e1014edef"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part07",
+          "part": 7,
+          "offset": 1610612736,
+          "bytes": 268435456,
+          "sha256": "6af98dfd1f5eafd2ff22f9f26ebb7d56efb7ec92ddbb76adfe0108ae84489362"
+        },
+        {
+          "name": "RVC-Studio-1.2.7-Setup-3.bin.part08",
+          "part": 8,
+          "offset": 1879048192,
+          "bytes": 120951808,
+          "sha256": "e4a217578ff44ad2229b3fd5822b9907f89b60ea813a5de925cd40363a4f7749"
+        }
+      ]
+    },
+    {
+      "name": "RVC-Studio-1.2.7-Setup-4.bin",
+      "bytes": 857728145,
+      "sha256": "6388be76a79be542136355f99d864d3fac7b7e8e3e2608e6e173d02e620a3ddf",
+      "chunked": false,
+      "remote_reuse": true,
+      "chunks": []
+    }
+  ],
+  "upload_assets": [
+    "RVC-Studio-1.2.7-Setup-1.bin.part01",
+    "RVC-Studio-1.2.7-Setup-1.bin.part02",
+    "RVC-Studio-1.2.7-Setup-1.bin.part03",
+    "RVC-Studio-1.2.7-Setup-1.bin.part04",
+    "RVC-Studio-1.2.7-Setup-1.bin.part05",
+    "RVC-Studio-1.2.7-Setup-1.bin.part06",
+    "RVC-Studio-1.2.7-Setup-1.bin.part07",
+    "RVC-Studio-1.2.7-Setup-1.bin.part08",
+    "RVC-Studio-1.2.7-Setup-2.bin.part01",
+    "RVC-Studio-1.2.7-Setup-2.bin.part02",
+    "RVC-Studio-1.2.7-Setup-2.bin.part03",
+    "RVC-Studio-1.2.7-Setup-2.bin.part04",
+    "RVC-Studio-1.2.7-Setup-2.bin.part05",
+    "RVC-Studio-1.2.7-Setup-2.bin.part06",
+    "RVC-Studio-1.2.7-Setup-2.bin.part07",
+    "RVC-Studio-1.2.7-Setup-2.bin.part08",
+    "RVC-Studio-1.2.7-Setup-3.bin.part01",
+    "RVC-Studio-1.2.7-Setup-3.bin.part02",
+    "RVC-Studio-1.2.7-Setup-3.bin.part03",
+    "RVC-Studio-1.2.7-Setup-3.bin.part04",
+    "RVC-Studio-1.2.7-Setup-3.bin.part05",
+    "RVC-Studio-1.2.7-Setup-3.bin.part06",
+    "RVC-Studio-1.2.7-Setup-3.bin.part07",
+    "RVC-Studio-1.2.7-Setup-3.bin.part08"
+  ],
+  "reused_remote_assets": [
+    "RVC-Studio-1.2.7-Setup-4.bin"
+  ],
+  "assembly": "verify_chunks.py streams chunks in order and checks each chunk plus the known original SHA-256; it does not create a concatenated copy."
+}
