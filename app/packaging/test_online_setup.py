@@ -2,9 +2,12 @@
 from pathlib import Path
 import hashlib
 import json
+import ctypes
+from ctypes import wintypes
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -26,6 +29,146 @@ ASSET_NAMES = [
     "RVC-Studio-1.2.7-Setup-4.bin",
 ]
 FIXTURES = [b"RVC-online-setup", b"fixture-2", b"fixture-3", b"fixture-4", b"fixture-5"]
+
+
+class _JobObject:
+    """Keep the test Inno wrapper and any temporary Setup child together."""
+
+    def __enter__(self):
+        self.kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        api = self.kernel32
+        # Explicit pointer-sized signatures are required on 64-bit Windows.
+        api.CreateJobObjectW.argtypes = (ctypes.c_void_p, wintypes.LPCWSTR)
+        api.CreateJobObjectW.restype = wintypes.HANDLE
+        api.SetInformationJobObject.argtypes = (wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD)
+        api.SetInformationJobObject.restype = wintypes.BOOL
+        api.AssignProcessToJobObject.argtypes = (wintypes.HANDLE, wintypes.HANDLE)
+        api.AssignProcessToJobObject.restype = wintypes.BOOL
+        api.CloseHandle.argtypes = (wintypes.HANDLE,)
+        api.CloseHandle.restype = wintypes.BOOL
+        api.CreateProcessW.argtypes = (wintypes.LPCWSTR, wintypes.LPWSTR, ctypes.c_void_p,
+                                      ctypes.c_void_p, wintypes.BOOL, wintypes.DWORD,
+                                      ctypes.c_void_p, wintypes.LPCWSTR, ctypes.c_void_p, ctypes.c_void_p)
+        api.CreateProcessW.restype = wintypes.BOOL
+        api.ResumeThread.argtypes = (wintypes.HANDLE,)
+        api.ResumeThread.restype = wintypes.DWORD
+        api.GetExitCodeProcess.argtypes = (wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD))
+        api.GetExitCodeProcess.restype = wintypes.BOOL
+        api.TerminateProcess.argtypes = (wintypes.HANDLE, wintypes.UINT)
+        api.TerminateProcess.restype = wintypes.BOOL
+        api.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+        api.OpenProcess.restype = wintypes.HANDLE
+        api.WaitForSingleObject.argtypes = (wintypes.HANDLE, wintypes.DWORD)
+        api.WaitForSingleObject.restype = wintypes.DWORD
+        self.handle = self.kernel32.CreateJobObjectW(None, None)
+        if not self.handle:
+            raise ctypes.WinError(ctypes.get_last_error())
+
+        class Basic(ctypes.Structure):
+            _fields_ = [("PerProcessUserTime", ctypes.c_longlong),
+                        ("PerJobUserTime", ctypes.c_longlong),
+                        ("LimitFlags", wintypes.DWORD),
+                        ("MinimumWorkingSetSize", ctypes.c_size_t),
+                        ("MaximumWorkingSetSize", ctypes.c_size_t),
+                        ("ActiveProcessLimit", wintypes.DWORD),
+                        ("Affinity", ctypes.c_size_t),
+                        ("PriorityClass", wintypes.DWORD),
+                        ("SchedulingClass", wintypes.DWORD)]
+
+        class IoCounters(ctypes.Structure):
+            _fields_ = [("ReadOperationCount", ctypes.c_ulonglong),
+                        ("WriteOperationCount", ctypes.c_ulonglong),
+                        ("OtherOperationCount", ctypes.c_ulonglong),
+                        ("ReadTransferCount", ctypes.c_ulonglong),
+                        ("WriteTransferCount", ctypes.c_ulonglong),
+                        ("OtherTransferCount", ctypes.c_ulonglong)]
+
+        class Extended(ctypes.Structure):
+            _fields_ = [("BasicLimitInformation", Basic),
+                        ("IoInfo", IoCounters),
+                        ("ProcessMemoryLimit", ctypes.c_size_t),
+                        ("JobMemoryLimit", ctypes.c_size_t),
+                        ("PeakProcessMemoryUsed", ctypes.c_size_t),
+                        ("PeakJobMemoryUsed", ctypes.c_size_t)]
+
+        limits = Extended()
+        limits.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE
+        if not self.kernel32.SetInformationJobObject(
+                self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
+            error = ctypes.WinError(ctypes.get_last_error())
+            self.__exit__()
+            raise error
+        return self
+
+    def attach(self, process):
+        if not self.kernel32.AssignProcessToJobObject(self.handle, process.handle):
+            raise ctypes.WinError(ctypes.get_last_error())
+
+    def __exit__(self, *_args):
+        if getattr(self, "handle", None):
+            self.kernel32.CloseHandle(self.handle)
+            self.handle = None
+
+
+class _SuspendedProcess:
+    """Create the test wrapper suspended so its temporary child is job-owned."""
+
+    def __init__(self, kernel32, args, cwd: Path):
+
+        class StartupInfo(ctypes.Structure):
+            _fields_ = [("cb", wintypes.DWORD), ("lpReserved", wintypes.LPWSTR),
+                        ("lpDesktop", wintypes.LPWSTR), ("lpTitle", wintypes.LPWSTR),
+                        ("dwX", wintypes.DWORD), ("dwY", wintypes.DWORD),
+                        ("dwXSize", wintypes.DWORD), ("dwYSize", wintypes.DWORD),
+                        ("dwXCountChars", wintypes.DWORD), ("dwYCountChars", wintypes.DWORD),
+                        ("dwFillAttribute", wintypes.DWORD), ("dwFlags", wintypes.DWORD),
+                        ("wShowWindow", wintypes.WORD), ("cbReserved2", wintypes.WORD),
+                        ("lpReserved2", wintypes.LPBYTE), ("hStdInput", wintypes.HANDLE),
+                        ("hStdOutput", wintypes.HANDLE), ("hStdError", wintypes.HANDLE)]
+
+        class ProcessInfo(ctypes.Structure):
+            _fields_ = [("hProcess", wintypes.HANDLE), ("hThread", wintypes.HANDLE),
+                        ("dwProcessId", wintypes.DWORD), ("dwThreadId", wintypes.DWORD)]
+
+        startup = StartupInfo()
+        startup.cb = ctypes.sizeof(startup)
+        startup.dwFlags = 1
+        info = ProcessInfo()
+        command = ctypes.create_unicode_buffer(subprocess.list2cmdline([str(arg) for arg in args]))
+        flags = 0x00000004 | 0x00000400
+        if not kernel32.CreateProcessW(None, command, None, None, False, flags, None,
+                                       str(cwd), ctypes.byref(startup), ctypes.byref(info)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        self.kernel32 = kernel32
+        self.handle, self.thread = info.hProcess, info.hThread
+
+    def resume(self):
+        if self.kernel32.ResumeThread(self.thread) == 0xFFFFFFFF:
+            raise ctypes.WinError(ctypes.get_last_error())
+
+    def poll(self):
+        code = wintypes.DWORD()
+        if not self.kernel32.GetExitCodeProcess(self.handle, ctypes.byref(code)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return None if code.value == 259 else code.value
+
+    def terminate(self):
+        self.kernel32.TerminateProcess(self.handle, 1)
+
+    def wait(self, timeout=5):
+        deadline = time.monotonic() + timeout
+        while self.poll() is None and time.monotonic() < deadline:
+            time.sleep(0.05)
+        return self.poll()
+
+    def close(self):
+        try:
+            if self.poll() is None:
+                self.terminate()
+                self.wait()
+        finally:
+            self.kernel32.CloseHandle(self.thread)
+            self.kernel32.CloseHandle(self.handle)
 
 
 def reset_test_cache() -> None:
@@ -66,15 +209,56 @@ def run_test_variant(base_url: str, expect_failure: bool = False) -> str:
         args.insert(3, "/DOnlineSetupExpectFailure")
     subprocess.run(args, cwd=ROOT, check=True, capture_output=True, text=True)
     REPORT.unlink(missing_ok=True)
-    process = subprocess.Popen([str(TEST_EXE), "/VERYSILENT", "/NORESTART"], cwd=ROOT)
-    deadline = time.time() + 30
-    while not REPORT.is_file() and time.time() < deadline:
-        time.sleep(0.1)
-    if process.poll() is None:
-        process.kill()
-        process.wait(timeout=5)
-    assert REPORT.is_file(), "test bootstrap did not write a result report"
-    return REPORT.read_text(encoding="utf-8")
+    started = time.time()
+    with _JobObject() as job:
+        process = _SuspendedProcess(job.kernel32, [TEST_EXE, "/VERYSILENT", "/NORESTART"], ROOT)
+        try:
+            job.attach(process)
+            process.resume()
+            deadline = time.monotonic() + 30
+            while not REPORT.is_file() and time.monotonic() < deadline and process.poll() is None:
+                time.sleep(0.1)
+            assert REPORT.is_file() and REPORT.stat().st_mtime >= started, "test bootstrap did not write a result report"
+            result = REPORT.read_text(encoding="utf-8")
+            assert process.wait(timeout=10) == 0, "test bootstrap did not exit normally"
+        finally:
+            process.close()
+    return result
+
+
+def exercise_process_cleanup() -> None:
+    """An intentional timeout must also terminate a spawned child."""
+    with tempfile.TemporaryDirectory() as folder:
+        root = Path(folder)
+        marker = root / "child.pid"
+        fixture = root / "spawn_child.py"
+        fixture.write_text(
+            "import pathlib, subprocess, sys, time\n"
+            "child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+            "pathlib.Path('child.pid').write_text(str(child.pid))\n"
+            "time.sleep(60)\n", encoding="utf-8")
+        child_handle = None
+        try:
+            with _JobObject() as job:
+                process = _SuspendedProcess(job.kernel32, [sys.executable, fixture], root)
+                try:
+                    job.attach(process)
+                    process.resume()
+                    deadline = time.monotonic() + 10
+                    while not marker.is_file() and time.monotonic() < deadline:
+                        time.sleep(0.05)
+                    assert marker.is_file(), "cleanup fixture did not spawn its child"
+                    child_handle = job.kernel32.OpenProcess(0x00100000, False, int(marker.read_text()))
+                    assert child_handle, "cleanup fixture child could not be observed"
+                    assert job.kernel32.WaitForSingleObject(child_handle, 0) == 258
+                    raise TimeoutError("intentional test timeout")
+                finally:
+                    process.close()
+        except TimeoutError:
+            assert job.kernel32.WaitForSingleObject(child_handle, 5000) == 0, "timed-out test left a child alive"
+        finally:
+            if child_handle:
+                job.kernel32.CloseHandle(child_handle)
 
 
 def exercise_native_downloads() -> None:
@@ -170,10 +354,11 @@ def main() -> None:
         assert hashlib.sha256(fixture.read_bytes()).hexdigest() == good
         fixture.write_bytes(b"RVC-online-fixture-corrupt")
         assert hashlib.sha256(fixture.read_bytes()).hexdigest() != good
+    exercise_process_cleanup()
     exercise_native_downloads()
     exercise_assembly_command()
     assert "copy /y /b" in source and "AssembleOriginal" in source
-    print("native download fixture tests: good, cache reuse, checksum rejection, ordered assembly")
+    print("native download fixture tests: good, cache reuse, checksum rejection, ordered assembly, timeout child cleanup")
 
 
 if __name__ == "__main__":

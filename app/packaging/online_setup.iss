@@ -19,6 +19,9 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 MinVersion=10.0
 #ifdef OnlineSetupTest
+CreateAppDir=no
+DisableDirPage=yes
+DisableFinishedPage=yes
 OutputDir=..\..\releases\online-test
 OutputBaseFilename=RVC-Studio-online-test
 #else
@@ -412,6 +415,9 @@ var
   Code: Integer;
   SetupPath: String;
 begin
+  #ifdef OnlineSetupTest
+  RaiseException('测试安装器禁止启动完整安装程序');
+  #endif
   SetupPath := AddBackslash(CacheDir) + AssetName(0);
   Result := Exec(SetupPath, '', CacheDir, SW_SHOWNORMAL, ewNoWait, Code);
   if not Result then
@@ -451,13 +457,17 @@ begin
   else
     SaveStringToFile(ExpandConstant('{localappdata}\RVCStudio\online-test-report.txt'), 'failure', False);
   #endif
-  WizardForm.Close;
   #endif
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
+  #ifdef OnlineSetupTest
+  { The test downloads fixtures in InitializeWizard; normal silent completion
+    must never interpret fixture bytes as an executable. }
+  exit;
+  #endif
   if CurPageID = StartPage.ID then begin
     if not Downloaded then begin
       Downloaded := DownloadAll();
