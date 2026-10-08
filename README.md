@@ -6,7 +6,9 @@
 
 这份仓库是源码和运行说明，不是包含全部模型与运行时的完整安装包。角色音色模型、用户歌曲、索引文件、Python/CUDA 运行时和本机配置不会随源码发布。
 
-**程序包：[GitHub Releases 下载](https://github.com/soranatsu/RVC-Studio/releases/latest)。** 当前先行发布约 2 MB 的 `RVC-Studio-1.2.7-Program.zip`，包含程序与源码，需要已有对应运行环境和模型才能使用。约 6.85 GB 的完整安装包尚未上传完成；程序包和 GitHub 自动生成的 `Source code` 压缩包均不含运行环境或模型。
+**完整安装包：[GitHub Releases 下载](https://github.com/soranatsu/RVC-Studio/releases/latest)。** 下载 `RVC-Studio-1.2.7-Setup.exe` 和全部 4 个 `Setup-*.bin`，放在同一文件夹中运行 `.exe`，无需合并或解压数据分卷。约 6.85 GB 的安装包包含运行环境和 15 个声音模型。
+
+约 2 MB 的 `RVC-Studio-1.2.7-Program.zip` 也继续提供，包含程序与源码，供已有对应运行环境和模型的用户使用。GitHub 自动生成的 `Source code` 压缩包仅包含源码。
 
 ![声音工作台界面](assets/screenshots/studio.png)
 
